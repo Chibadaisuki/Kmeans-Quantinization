@@ -1,0 +1,74 @@
+Literature:
+https://arxiv.org/pdf/1601.06071.pdf
+https://paris.cs.illinois.edu/pubs/kim-nips2017.pdf
+https://openaccess.thecvf.com/content_CVPR_2019/papers/Yang_Quantization_Networks_CVPR_2019_paper.pdf
+
+Bitwise Neural Network
+
+Goal: Develop an efficient feedforward procedure that minimizes the computational and spatial complexity of running and maintaining a DNN-based source separation system. 
+
+Key Idea:
+(QaD) Use Lloyd-Max’s algorithm to perform input encoding
+(IDM) Use IDM to perform label encoding
+Convert input, output, weights, and bias into bitwise encoding during two rounds of training
+Using bitwise operation (i.e XNOR and bitwise counting) in BNN feedforward
+Noise injection technique to account for the decremental performance of introducing binary weights 
+BNN Training process:
+First round
+Wrap the weights and bias with tanh (output of each layer in [-1,1])
+calculate the backprop formula
+Second round (noisy feedforward)
+Compress weight W -> tanh(W)
+Takeout the pre-defined sparsity value ROU
+Use ROU to calculate the boundary BETA
+Binarize weights: get rid of -BETA < w < BETA
+Use new weights and biases in the feedforward part
+Compute ∂L/∂w and ∂L/∂b using the new weights and biases
+Use gradient descent in the original real-value parameters W and b
+Use the updated w and b to perform previous iterations (recalculate BETA)
+
+
+MAIN IDEAS
+
+Binarized Neural Network
+https://arxiv.org/pdf/1602.02830.pdf
+Bitwise Neural Network
+https://arxiv.org/pdf/1601.06071.pdf
+
+Ternary Neural Network 
+(Bitwise paper included)
+https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=6986082
+
+Quantization Neural Network
+https://ojs.aaai.org/index.php/AAAI/article/view/11623
+https://openaccess.thecvf.com/content_CVPR_2019/papers/Yang_Quantization_Networks_CVPR_2019_paper.pdf
+
+https://arxiv.org/pdf/1712.05877.pdf （QTA paper referenced by Tensorflow)
+
+
+There are two forms of quantization: post-training quantization (PTQ) and quantization aware training (QTA).
+
+
+COMMON BASELINE MODELS
+MobileNet
+ImageNet
+ResNet
+
+Goal: Inference time accelerating, potential training variance decrease (convergence speed), use it as regulator, quantization network, 
+	Inference model size compression
+
+Contributions:
+Mapping function is learned
+Mapping space is learned - flexible to fit in different environments
+Better performance (Problem-specific)
+Benchmark variance and performance comparing to other network compression methods
+CNN quantization (?)
+
+Lit Review:
+Bit precision
+Sparse representation
+
+Auxiliary network - learn the quantization
+Baseline:
+K Means mapping of network parameters. 
+
