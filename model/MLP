@@ -1,0 +1,207 @@
+import os
+import sys
+import numpy as np
+import pandas as pd
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader, Dataset
+from sklearn.metrics import accuracy_score
+import time
+
+np.random.seed(11785)
+torch.manual_seed(11785)
+
+cuda = torch.cuda.is_available()
+device = torch.device("cuda:0" if cuda else "cpu")
+num_workers = 8 if cuda else 0
+print("Cuda = "+str(cuda)+" with num_workers = "+str(num_workers))
+
+sys.version
+print(cuda, sys.version)
+
+context = 30
+offset = context
+class SpeechDataSet(Dataset):
+  def __init__(self, X_path, Y_path, offset=1, context = 1):
+
+    # Load the data and label from file path
+    X = np.load(X_path, allow_pickle=True)
+    Y = np.load(Y_path, allow_pickle=True)
+
+    X = np.vstack(X)
+    Y = np.hstack(Y)
+
+    self.X = X
+    self.Y = Y
+
+    # Assigning length to self
+    self.length = len(self.Y)
+
+    # Add offset and context to self
+    self.offset = offset
+    self.context = context
+
+    # Zero Padding the input data to account for the context
+    self.X = np.pad(self.X, ((self.context, self.context), (0, 0)),
+                                mode='constant', constant_values=0)
+    
+  def __len__(self):
+    return self.length
+
+  def __getitem__(self, index):
+
+    # Compute the start index and the end index
+    start_index = index + self.offset - self.context
+    end_index = index + self.offset + self.context + 1
+
+    # Extract data and label
+    data = torch.flatten(torch.tensor(self.X[start_index:end_index, :]).float())
+    label = torch.tensor(self.Y[index]).long()
+    
+    return data, label
+## Dataloaders
+# Training dataloader
+train_data = SpeechDataSet('train.npy', 'train_labels.npy', offset, context)
+train_args = dict(shuffle=True, batch_size=256, num_workers=4, drop_last=False) if cuda\
+                    else dict(shuffle=True, batch_size=64, drop_last=False)
+train_loader = DataLoader(train_data, **train_args)
+
+# Validation dataloader
+val_data = SpeechDataSet('dev.npy', 'dev_labels.npy', offset, context)
+val_args = dict(shuffle=False, batch_size=256, num_workers=4, drop_last=False) if cuda\
+                    else dict(shuffle=True, batch_size=64, drop_last=False)
+val_loader = DataLoader(val_data, **val_args)
+# Train the Model
+def train_model(train_loader, model):
+  # Set model to training mode
+  model.train()
+
+  training_loss = 0
+
+  # Enumerate through batches
+  for i, (inputs, target) in enumerate(train_loader):
+    # Clear gradient in optimizer
+    optimizer.zero_grad()
+
+    # Mover inputs and target to device
+    inputs = inputs.to(device)
+    target = target.to(device)
+
+    # Compute model output
+    output = model(inputs)
+
+    # Calculate Loss
+    loss = criterion(output, target)
+
+    training_loss += loss.item()
+
+    loss.backward()
+    optimizer.step()
+
+  training_loss /= len(train_loader)
+  return training_loss
+def evaluate_model(val_loader, model):
+  # Set model to evaluating mode
+  model.eval()
+
+  predictions = np.asarray([])
+  actuals = np.asarray([])
+
+  eval_loss = 0
+  with torch.no_grad():
+    for i, (inputs, target) in enumerate(val_loader):
+      inputs = inputs.to(device)
+      target = target.to(device)
+
+      output = model(inputs)
+
+      # Computing loss
+      loss = criterion(output, target)
+      eval_loss += loss.item()
+
+      output = output.cpu().detach().numpy()
+      actual = target.cpu().numpy()
+      # print("target: ")
+      # print(actual)
+      # print("output: ")
+      # print(output)
+      output = np.argmax(output, axis=1)
+
+      predictions = np.concatenate((predictions, output), axis=0)
+      actuals = np.concatenate((actuals, actual), axis=0)
+      
+  predictions = predictions.astype(int)
+  actuals = actuals.astype(int)
+  acc = accuracy_score(actuals, predictions)
+  eval_loss /= len(val_loader)
+  return acc, eval_loss
+class MLP(nn.Module):
+  # Define Model Element
+  def __init__(self, sizeList):
+    super().__init__()
+    layers = []
+    self.sizeList = sizeList
+    for i in range(len(sizeList) - 2):
+
+      linearLayer = nn.Linear(sizeList[i], sizeList[i+1])
+      if (i % 2 == 0):
+        batchNormalizationLayer = nn.BatchNorm1d(sizeList[i+1])
+      if (i % 2 == 0):
+        dropOut = nn.Dropout(0.5)
+      activationLayer = nn.ReLU()
+
+      layers.append(linearLayer)
+      layers.append(activationLayer)
+      if (i % 2 == 0):
+        layers.append(batchNormalizationLayer)
+      if (i % 2 == 0):
+        layers.append(dropOut)
+
+    outputLayer = nn.Linear(sizeList[-2], sizeList[-1])
+    layers.append(outputLayer)
+    self.net = nn.Sequential(*layers)
+  
+  def forward(self, x):
+    return self.net(x)
+# Model 1(original), Model 2(quantized)
+inputSize = (2 * context + 1) * 40
+outputSize = 71
+model = MLP([inputSize, 2048, 1950, 1750, 1600, 1400, 1300, 1200, 1000, 800, outputSize])
+
+#Define Criterion/Loss Function and optimizer
+criterion = nn.CrossEntropyLoss()
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='max', factor = 0.1, patience=3)
+model.to(device)
+
+print(model)
+epochs = 40
+epoch_count = 0
+best_acc = 0
+
+for _ in range(epochs):
+  # Train
+  start_time = time.time()
+  training_loss = train_model(train_loader, model)
+  end_time = time.time()
+  print("Epoch: "+str(epoch_count)+", Time taken:"+str(end_time-start_time)+" sec, Training loss: "+str(training_loss))
+  # Validation
+  start_time = time.time()
+  val_acc, val_loss = evaluate_model(val_loader, model)
+  end_time = time.time()
+  print("Epoch: "+str(epoch_count)+", Time taken:"+str(end_time-start_time)+" sec, Validation loss: "+str(val_loss)+", Validation accuracy: "+str(val_acc*100)+"%")
+  #Saving best Model
+  if val_acc > best_acc:
+    torch.save({
+              'epoch': epoch_count,
+              'training_loss': training_loss,
+              'validation_loss': val_loss,
+              'model_state_dict': model.state_dict(),
+              'optimizer_state_dict': optimizer.state_dict(),
+              'scheduler_state_dict' : scheduler.state_dict()}, 
+              "/content/gdrive/MyDrive/11785 TermProject/" + "Term Project Benchmark")
+    print("Best Model Updated.")
+    best_acc = val_acc
+  epoch_count += 1
+  scheduler.step(val_acc)
