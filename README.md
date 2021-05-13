@@ -67,6 +67,12 @@ $ kaggle competitions download -c 11785-spring2021-hw2p2s1-face-classification
 ### Model
 
 Toy model of MLP and CNN
+#### MLP structure 
+![Result](baseline_model.png?raw=true)
+
+```sh
+$ kaggle competitions download -c 11785-spring2021-hw2p2s1-face-classification
+```
 
 ### Quantiazationmethod
 
