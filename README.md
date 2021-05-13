@@ -24,8 +24,8 @@ The new centroids becomes the mean of x  Cluster| dL/dx *(x - c) | for each clus
 - [Install](#install)
 - [Usage](#usage)
 	- [Data](#data)
-	- [Model](#model)
 	- [Quantiazation method](#quantiazation method)
+	- [Model](#model)
 - [Contributors](#contributors)
 - [License](#license)
 
