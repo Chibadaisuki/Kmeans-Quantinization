@@ -23,7 +23,9 @@ The new centroids becomes the mean of x  Cluster| dL/dx *(x - c) | for each clus
 - [Background](#background)
 - [Install](#install)
 - [Usage](#usage)
-	- [Generator](#generator)
+	- [Data](#generator)
+	- [Model](#generator)
+	- [Kmeans](#generator)
 - [Contributors](#contributors)
 - [License](#license)
 
