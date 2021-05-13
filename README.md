@@ -77,7 +77,7 @@ $ run MLP.ipynb
 ![Result](Resnet34.png?raw=true)
 
 ```sh
-$ run CNN.ipynb
+$ run CNN--resnet34.ipynb
 ```
 ### Quantiazationmethod
 
