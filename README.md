@@ -16,7 +16,8 @@ Hence, after clustering, we use similar algorithm to find cluster mean,
 argminc  x  Clusterloss (x -> c) =argminc x  Cluster| dL/dx *(x - c) |
 
 The new centroids becomes the mean of x  Cluster| dL/dx *(x - c) | for each cluster. 
-
+And we have a pleasing result.
+(/readme/ModifiedKmean1.png?raw=true)
 
 ## Table of Contents
 
