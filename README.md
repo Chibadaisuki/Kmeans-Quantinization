@@ -23,9 +23,9 @@ The new centroids becomes the mean of x  Cluster| dL/dx *(x - c) | for each clus
 - [Background](#background)
 - [Install](#install)
 - [Usage](#usage)
-	- [Data](#generator)
-	- [Model](#generator)
-	- [Kmeans](#generator)
+	- [Data](#data)
+	- [Model](#model)
+	- [Quantiazation method](#quantiazation method)
 - [Contributors](#contributors)
 - [License](#license)
 
@@ -55,7 +55,7 @@ To get the data for the model.
 
 Toy model of MLP and CNN
 
-### Kmeans
+### Quantiazation method
 
 Kmeans method for quantization
 
