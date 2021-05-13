@@ -50,6 +50,12 @@ This is only a documentation package.
 ### Data
 
 To get the data for the model.
+#### Data for MLP
+[train|dev]_labels.npy contain a numpy object array of shape [utterances]. Each element in the array is an int32 array of shape [time] and provides the phoneme state label for each frame. There are 71 distinct labels [0-70], one for each subphoneme.
+
+```sh
+$ kaggle competitions download -c 11785-spring2021-hw1p2
+```
 
 ### Model
 
