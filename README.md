@@ -71,9 +71,14 @@ Toy model of MLP and CNN
 ![Result](baseline_model.png?raw=true)
 
 ```sh
-$ kaggle competitions download -c 11785-spring2021-hw2p2s1-face-classification
+$ run MLP.ipynb
 ```
+#### CNN structure 
+![Result](Resnet34.png?raw=true)
 
+```sh
+$ run CNN.ipynb
+```
 ### Quantiazationmethod
 
 Kmeans method for quantization
