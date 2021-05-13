@@ -45,17 +45,23 @@ This project uses pytorch and jyupter notebook. Go check them out if you don't h
 This is only a documentation package.
 
 
-### Generator
+### Data
 
-To use the generator, look at [generator-standard-readme](https://github.com/RichardLitt/generator-standard-readme). There is a global executable to run the generator in that package, aliased as `standard-readme`.
+To get the data for the model.
+
+### Model
+
+Toy model of MLP and CNN
+
+### Kmeans
+
+Kmeans method for quantization
 
 
 ### Contributors
 
 This project exists thanks to all the people who contribute. 
-<a href="https://github.com/Chibadaisuki/Kmeans-Quantinization/contributors"><img src="https://github.com/Chibadaisuki/Kmeans-Quantinization/contributors.svg?width=890&button=false" /></a>
-
 
 ## License
 
-[MIT](LICENSE) © Richard Littauer
+[MIT](LICENSE)
